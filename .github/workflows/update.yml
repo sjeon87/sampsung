@@ -1,0 +1,34 @@
+name: Update
+on:
+  workflow_dispatch:
+  schedule:
+    # mon,wed,fri at 6pm 5min KST
+    - cron: "5 9 * * 1,3,5"
+    # tue,thu at 6pm 10min KST
+    - cron: "10 9 * * 2,4"
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm install
+      - name: Update dependencies
+        run: npm update
+
+      - name: Run updater
+        run: node updater
+
+      - name: Check if there is any change
+        id: get_changes
+        run: echo "changed=$(git status --porcelain | wc -l)" >> $GITHUB_OUTPUT
+      - name: Config git
+        if: steps.get_changes.outputs.changed != 0
+        run: git config user.name "Seokseong Jeon" && git config user.email " sjeon87@gmail.com"
+      - name: Do something if there is any change
+        if: steps.get_changes.outputs.changed != 0
+        run: git add . && git commit -m "Update data" && git push

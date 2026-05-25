@@ -1,0 +1,6 @@
+.github/
+updater/
+api.http
+biome.json
+README.md
+token.json
